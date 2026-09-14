@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/*
+ * Fırat Elektronik — Global Tema
+ * Kurumsal "Tech-Blue" paleti: ana renkler blue-600/700, zemin slate-50/white,
+ * koyu alanlar slate-900. Açık tema bilinçli olarak sabitlendi (prefers-color-scheme
+ * otomatik geçişi kaldırıldı); böylece site her cihazda aynı kurumsal görünümü sunar.
+ */
+:root {
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family:
+    var(--font-inter),
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/*
+ * Erişilebilirlik (a11y): Klavye ile gezinirken net bir odak halkası göster.
+ * Fare ile tıklamada görünmez, yalnızca klavye navigasyonunda tetiklenir.
+ */
+:focus-visible {
+  outline: 2px solid #2563eb; /* blue-600 */
+  outline-offset: 2px;
+}
+
+/* Dropdown / kart açılışlarında kullanılan ince aşağı kayma animasyonu */
+@keyframes fade-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-down {
+  animation: fade-slide-down 0.18s ease-out;
+}
+
+/* Custom scrollbar - Fırat Elektronik teması */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
