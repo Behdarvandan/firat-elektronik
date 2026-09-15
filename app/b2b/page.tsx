@@ -5,7 +5,7 @@ import {
   verifyB2bSessionToken,
 } from "@/lib/b2b-session";
 import B2BLogin from "./B2BLogin";
-import B2BDashboard, { type B2bProduct } from "./B2BDashboard";
+import B2BDashboard from "./B2BDashboard";
 
 // Oturum cookie'si her istekte okunduğu için dinamik render zorunlu.
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export default async function B2BPage() {
         name: session.name,
         email: session.email,
       }}
-      products={(products as B2bProduct[]) ?? []}
+      products={products ?? []}
     />
   );
 }

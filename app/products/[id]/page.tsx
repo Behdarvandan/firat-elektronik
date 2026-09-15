@@ -5,18 +5,6 @@ import Link from "next/link";
 // Ürün detayı her istekte güncel kalsın diye dinamik render.
 export const dynamic = "force-dynamic";
 
-// Veritabanından dönen ürün detayı (yalnızca seed ile garanti edilen kolonlar).
-type ProductModel = { id: string; model_name: string };
-
-type ProductDetail = {
-  id: number;
-  name: string;
-  box_code: string;
-  category_id: number;
-  categories: { name: string } | null;
-  product_models: ProductModel[];
-};
-
 export default async function ProductPage({
   params,
 }: {
@@ -43,7 +31,7 @@ export default async function ProductPage({
 
   if (error || !productData) return notFound();
 
-  const product = productData as unknown as ProductDetail;
+  const product = productData;
 
   // Uyumlu modelleri alfabetik sıralayarak okunabilirliği artır.
   const sortedModels = [...(product.product_models ?? [])].sort((a, b) =>

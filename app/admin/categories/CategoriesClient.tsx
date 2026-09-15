@@ -4,12 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CategoryForm from "./CategoryForm";
 import { deleteCategory } from "../actions";
-
-interface Category {
-  id: number;
-  name: string;
-  prefix: string;
-}
+import type { Category } from "@/types/catalog";
 
 interface CategoriesClientProps {
   initialCategories: Category[];
@@ -122,8 +117,8 @@ export default function CategoriesClient({
       </div>
 
       {/* 📱 Categories Table - Mobil Overflow Koruması İyileştirildi */}
-      <div className="w-full overflow-x-auto -mx-4 sm:mx-0 rounded-lg border border-slate-800">
-        <div className="bg-slate-900 min-w-max sm:min-w-0">
+      <div className="w-full overflow-x-auto rounded-lg border border-slate-800">
+        <div className="bg-slate-900">
           {initialCategories.length === 0 ? (
             <div className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-800 rounded-full mb-4">
@@ -149,7 +144,7 @@ export default function CategoriesClient({
               </p>
             </div>
           ) : (
-            <table className="w-full">
+            <table className="w-full min-w-[560px]">
               <thead>
                 <tr className="border-b border-slate-800">
                   <th className="text-left px-3 sm:px-6 py-3 sm:py-4 text-sm font-semibold text-slate-300 whitespace-nowrap">
@@ -182,7 +177,7 @@ export default function CategoriesClient({
                     </td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        {category.prefix}
+                        {category.prefix ?? "-"}
                       </span>
                     </td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">

@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link"; // Pagination için Link bileşeni
+import AddToCartButton from "../../components/AddToCartButton";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 1800;
@@ -127,7 +128,7 @@ export default async function CategoryPage({
       {/* ÜRÜN GRİDİ */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 lg:py-12">
         <div className="grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {products?.map((product: any) => {
+          {products?.map((product) => {
             // ✅ DÜZELTİLDİ: pm.mobile.name yerine pm.model_name kullanılıyor (yeni yapı)
             const models = product.product_models || [];
             const displayedModels = models.slice(0, 6);
@@ -166,7 +167,7 @@ export default async function CategoryPage({
 
                   {/* Alt Modeller - Pill Format - Flex-1 ile Kart Altında Sabitle */}
                   {models.length > 0 && (
-                    <div className="space-y-2 mt-auto">
+                    <div className="space-y-2">
                       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
                         <svg
                           className="w-3.5 h-3.5"
@@ -185,7 +186,7 @@ export default async function CategoryPage({
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {/* ✅ DÜZELTİLDİ: mobile.name yerine model.model_name kullanılıyor */}
-                        {displayedModels.map((model: any, idx: number) => (
+                        {displayedModels.map((model, idx: number) => (
                           <span
                             key={model.id || idx}
                             className="inline-flex items-center bg-slate-100 text-slate-700 text-xs font-medium px-2.5 py-1 rounded-full hover:bg-slate-200 transition-colors"
@@ -201,6 +202,13 @@ export default async function CategoryPage({
                       </div>
                     </div>
                   )}
+                  <AddToCartButton
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      box_code: product.box_code,
+                    }}
+                  />
                 </div>
               </div>
             );

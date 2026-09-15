@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { ADMIN_PANEL_NAME } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +22,16 @@ async function getStats() {
       .from("product_models")
       .select("*", { count: "exact", head: true });
 
+    // Sipariş sayısını al (orders RLS korumalı → service role gerekir)
+    const { count: ordersCount } = await supabaseAdmin
+      .from("orders")
+      .select("*", { count: "exact", head: true });
+
     return {
       categories: categoriesCount || 0,
       products: productsCount || 0,
       models: modelsCount || 0,
+      orders: ordersCount || 0,
     };
   } catch (error) {
     console.error("İstatistikler yüklenemedi:", error);
@@ -32,6 +39,7 @@ async function getStats() {
       categories: 0,
       products: 0,
       models: 0,
+      orders: 0,
     };
   }
 }
@@ -43,16 +51,16 @@ export default async function AdminDashboardPage() {
     <div className="max-w-7xl mx-auto">
       {/* Welcome Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">
+        <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
           {ADMIN_PANEL_NAME}
         </h1>
-        <p className="text-slate-400 text-lg">
+        <p className="text-slate-400 text-sm md:text-lg">
           Hoş geldiniz! Sol menüden ürün ve kategori yönetimi yapabilirsiniz.
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Kategoriler */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-all hover:shadow-lg hover:shadow-purple-500/10">
           <div className="flex items-center justify-between">
@@ -130,6 +138,33 @@ export default async function AdminDashboardPage() {
                   strokeLinejoin="round"
                   strokeWidth={2}
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Siparişler */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-all hover:shadow-lg hover:shadow-orange-500/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-400 text-sm font-medium mb-1">
+                Toplam Siparişler
+              </p>
+              <p className="text-3xl font-bold text-white">{stats.orders}</p>
+            </div>
+            <div className="bg-orange-500/10 p-3 rounded-lg">
+              <svg
+                className="w-8 h-8 text-orange-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
             </div>

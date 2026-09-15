@@ -20,7 +20,7 @@ export interface ImportedProduct {
   id: number;
   name: string;
   box_code: string | null;
-  category_id: number | null;
+  category_id: number;
   box_code_note?: string | null;
   capacity?: string | null;
   product_code?: string | null;

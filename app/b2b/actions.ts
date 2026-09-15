@@ -98,6 +98,7 @@ export type CreateOrderResult = {
 
 export async function createOrderAction(
   items: OrderItemInput[],
+  note?: string,
 ): Promise<CreateOrderResult> {
   // Güvenlik: organization_id istemciden DEĞİL, doğrulanmış oturumdan gelir.
   const cookieStore = await cookies();
@@ -155,6 +156,7 @@ export async function createOrderAction(
       organization_id: session.organizationId,
       total_amount: totalAmount,
       status: "pending",
+      note: note?.trim() || null,
     })
     .select("id")
     .single();
@@ -186,5 +188,7 @@ export async function createOrderAction(
   }
 
   revalidatePath("/b2b");
+  revalidatePath("/checkout");
+  revalidatePath("/admin/orders");
   return { success: true, orderId: order.id };
 }

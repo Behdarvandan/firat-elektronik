@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
 // ✅ DEĞİŞTİRİLDİ: Ünlem (!) yerine OR (||) operatörü ile varsayılan değer atandı
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -14,12 +15,12 @@ if (!supabaseUrl || !supabaseServiceRoleKey) {
 // Admin yetkisine sahip Supabase client (Service Role Key kullanır)
 // Bu client RLS (Row Level Security) kurallarını bypass eder
 const globalForSupabaseAdmin = globalThis as unknown as {
-  supabaseAdmin: SupabaseClient | undefined;
+  supabaseAdmin: SupabaseClient<Database> | undefined;
 };
 
 export const supabaseAdmin =
   globalForSupabaseAdmin.supabaseAdmin ??
-  createClient(supabaseUrl, supabaseServiceRoleKey, {
+  createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

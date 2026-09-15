@@ -1,14 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { addCategory, updateCategory } from "../actions";
+import type { Category } from "@/types/catalog";
 
 interface CategoryFormProps {
-  category?: {
-    id: number;
-    name: string;
-    prefix: string;
-  };
+  category?: Category;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -19,20 +16,11 @@ export default function CategoryForm({
   onSuccess,
 }: CategoryFormProps) {
   const [formData, setFormData] = useState({
-    name: "",
-    prefix: "",
+    name: category?.name ?? "",
+    prefix: category?.prefix ?? "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (category) {
-      setFormData({
-        name: category.name,
-        prefix: category.prefix,
-      });
-    }
-  }, [category]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +43,7 @@ export default function CategoryForm({
       } else {
         setError(result.error || "Bir hata oluştu");
       }
-    } catch (err) {
+    } catch {
       setError("Beklenmeyen bir hata oluştu");
     } finally {
       setLoading(false);
@@ -63,8 +51,8 @@ export default function CategoryForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl w-full max-w-md my-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-start sm:items-center justify-center p-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl w-full max-w-lg mx-auto my-8">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-800">
           <h2 className="text-xl font-semibold text-white">

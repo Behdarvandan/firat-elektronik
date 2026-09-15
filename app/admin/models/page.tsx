@@ -1,10 +1,13 @@
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import type { AdminModelRow } from "@/types/catalog";
 
 export const dynamic = "force-dynamic";
 
 // Product Models verisini çek (server-side pagination)
-async function getModels(page: number = 1) {
+async function getModels(
+  page: number = 1,
+): Promise<{ models: AdminModelRow[]; totalCount: number }> {
   const pageSize = 20;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -41,7 +44,7 @@ async function getModels(page: number = 1) {
     return { models: [], totalCount: 0 };
   }
 
-  return { models: data || [], totalCount: count || 0 };
+  return { models: data ?? [], totalCount: count || 0 };
 }
 
 export default async function ModelsPage({
@@ -59,14 +62,16 @@ export default async function ModelsPage({
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Model Yönetimi</h1>
-        <p className="text-slate-400 text-lg">
+        <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
+          Model Yönetimi
+        </h1>
+        <p className="text-slate-400 text-sm md:text-lg">
           Ürün modellerini görüntüleyin ve yönetin
         </p>
       </div>
 
       {/* Stats */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div className="text-slate-400">
           Toplam <span className="text-white font-semibold">{totalCount}</span>{" "}
           model bulundu
@@ -79,25 +84,25 @@ export default async function ModelsPage({
       {/* Data Table */}
       <div className="bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[800px] text-sm">
             <thead className="bg-slate-800 border-b border-slate-700">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
                   Model ID
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
                   Görsel
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
                   Model Adı
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
                   Ürün
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
                   Fiyat
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
                   Açıklama
                 </th>
               </tr>
@@ -107,23 +112,23 @@ export default async function ModelsPage({
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-slate-400"
+                    className="px-4 sm:px-6 py-12 text-center text-slate-400"
                   >
                     Henüz model bulunmuyor
                   </td>
                 </tr>
               ) : (
-                models.map((model: any) => (
+                models.map((model) => (
                   <tr
                     key={model.id}
                     className="hover:bg-slate-800/50 transition-colors"
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       <div className="text-xs font-mono text-slate-400">
                         {model.id}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       {model.image_url ? (
                         <img
                           src={model.image_url}
@@ -148,17 +153,17 @@ export default async function ModelsPage({
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <div className="text-sm font-medium text-white">
                         {model.model_name}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-900/30 text-purple-300">
                         {model.products?.name || "N/A"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       {model.price ? (
                         <div className="text-sm font-semibold text-green-400">
                           {model.price}
@@ -167,7 +172,7 @@ export default async function ModelsPage({
                         <span className="text-sm text-slate-500">-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-400 max-w-md truncate">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm text-slate-400 max-w-[200px] sm:max-w-md truncate">
                       {model.description || "-"}
                     </td>
                   </tr>

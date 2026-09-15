@@ -12,11 +12,10 @@ type ProductModel = {
 type Product = {
   id: number;
   name: string;
-  box_code: string;
-  box_code_note: string;
-  capacity: string;
-  product_code: string;
-  specs: any;
+  box_code: string | null;
+  box_code_note: string | null;
+  capacity: string | null;
+  product_code: string | null;
   category_id: number;
   product_models: ProductModel[];
 };

@@ -1,6 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  typescript: {},
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   // SheetJS (xlsx) Node yerleşiklerini (fs/crypto) kullanır; sunucu bileşenleri
   // tarafında native require ile yüklenmesi için bundle dışı bırakıyoruz.
   serverExternalPackages: ["xlsx"],

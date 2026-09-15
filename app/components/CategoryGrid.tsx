@@ -1,12 +1,5 @@
-"use client";
-
 import Link from "next/link";
-
-interface Category {
-  id: number;
-  name: string;
-  prefix: string;
-}
+import type { Category } from "@/types/catalog";
 
 interface CategoryGridProps {
   categories: Category[];

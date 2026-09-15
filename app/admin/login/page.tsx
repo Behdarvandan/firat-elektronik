@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
         setError(result.error);
       }
       // Başarılı ise server action redirect yapacak
-    } catch (err) {
+    } catch {
       setError("Bir hata oluştu");
     } finally {
       setLoading(false);

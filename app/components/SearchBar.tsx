@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import type { SearchResult } from "@/types/catalog";
 
 // 🎨 Kategori renk ve ikon sistemi
 const CATEGORY_COLORS: {
@@ -56,17 +57,6 @@ type CategoryGroup = {
 };
 
 const MAX_RESULTS = 50;
-
-// ⚡ Veritabanından gelen BİREBİR aynı tipler
-type SearchResult = {
-  id: string;
-  model_name: string;
-  product_id: number;
-  product_name: string;
-  box_code: string;
-  category_id: number;
-  category_name: string;
-};
 
 export default function SearchBar() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -198,16 +188,7 @@ export default function SearchBar() {
       if (modelsError) throw modelsError;
 
       // 🔄 Products sonuçlarını düzleştir — her ürünün her modeli ayrı satır.
-      // (supabase-js ilişkileri dizi olarak tipler; runtime'da to-one obje döndüğü
-      // için kendi tiplerimize açıkça cast ediyoruz.)
-      const rawProducts = (productsData ?? []) as unknown as {
-        id: number;
-        name: string;
-        box_code: string;
-        category_id: number;
-        categories: { id: number; name: string };
-        product_models?: { id: string; model_name: string; product_id: number }[];
-      }[];
+      const rawProducts = productsData ?? [];
 
       const flattenedProductsResults: SearchResult[] = rawProducts.flatMap(
         (product) =>
@@ -223,17 +204,7 @@ export default function SearchBar() {
       );
 
       // 🔄 Models sonuçlarını düzleştir.
-      const rawModels = (modelsData ?? []) as unknown as {
-        id: string;
-        model_name: string;
-        products: {
-          id: number;
-          name: string;
-          box_code: string;
-          category_id: number;
-          categories: { id: number; name: string };
-        };
-      }[];
+      const rawModels = modelsData ?? [];
 
       const flattenedModelsResults: SearchResult[] = rawModels.map((item) => ({
         id: item.id,

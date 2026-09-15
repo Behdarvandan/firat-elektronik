@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { logoutAction } from "./logout-action";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ADMIN_PANEL_NAME } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,20 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // 📱 Menü açıkken arka plan kaydırmasını kilitle ve Escape ile kapat
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -65,7 +79,7 @@ export default function AdminLayout({
           id="admin-sidebar"
           className={`
           fixed md:static inset-y-0 left-0 z-40 w-64 bg-slate-900 border-r border-slate-800 flex flex-col
-          transform transition-transform duration-300 ease-in-out
+          transform transition-transform duration-300 ease-in-out overflow-y-auto
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           mt-14 md:mt-0
         `}
@@ -82,6 +96,7 @@ export default function AdminLayout({
           <nav className="flex-1 p-4 space-y-2">
             <Link
               href="/admin"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all duration-200"
             >
               <svg
@@ -102,6 +117,7 @@ export default function AdminLayout({
 
             <Link
               href="/admin/products"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all duration-200"
             >
               <svg
@@ -122,6 +138,7 @@ export default function AdminLayout({
 
             <Link
               href="/admin/categories"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all duration-200"
             >
               <svg
@@ -142,6 +159,7 @@ export default function AdminLayout({
 
             <Link
               href="/admin/models"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all duration-200"
             >
               <svg
@@ -161,7 +179,29 @@ export default function AdminLayout({
             </Link>
 
             <Link
+              href="/admin/orders"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all duration-200"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              <span className="font-medium">Siparişler</span>
+            </Link>
+
+            <Link
               href="/admin/import"
+              onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-all duration-200"
             >
               <svg

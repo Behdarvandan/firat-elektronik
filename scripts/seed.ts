@@ -1,50 +1,12 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import * as fs from "fs";
 import * as path from "path";
-
-// ============================================================================
-// Supabase Şema Tipleri (Database tablolarınızla birebir eşleşmeli)
-// ============================================================================
-
-interface Database {
-  public: {
-    Tables: {
-      categories: {
-        Row: CategoryRow;
-        Insert: CategoryRow;
-      };
-      products: {
-        Row: ProductRow;
-        Insert: ProductRow;
-      };
-      product_models: {
-        Row: ProductModelRow;
-        Insert: ProductModelRow;
-      };
-    };
-  };
-}
-
-interface CategoryRow {
-  id: number;
-  name: string;
-  prefix: string;
-}
-
-interface ProductRow {
-  id: number;
-  name: string;
-  box_code: string;
-  category_id: number;
-}
-
-interface ProductModelRow {
-  id: number;
-  model_name: string;
-  product_id: number;
-  sort_order: number;
-  is_new: boolean;
-}
+import type {
+  CategoryInsert,
+  Database,
+  ProductInsert,
+  ProductModelInsert,
+} from "../types/database";
 
 // ============================================================================
 // JSON Kaynak Dosyalarının Tipleri (homepage.json, samsung.json, vb.)
@@ -61,7 +23,7 @@ interface HomepageJSON {
 }
 
 interface MobileJSON {
-  mid: number;
+  mid: string;
   model: string;
   sort?: number;
   isNew?: boolean;
@@ -132,7 +94,7 @@ async function seedCategories(): Promise<boolean> {
     return false;
   }
 
-  const categories: CategoryRow[] = homepageData.categories.map((cat) => ({
+  const categories: CategoryInsert[] = homepageData.categories.map((cat) => ({
     id: cat.id,
     name: cat.name,
     prefix: cat.prefix || `CAT${cat.id}`,
@@ -140,7 +102,7 @@ async function seedCategories(): Promise<boolean> {
 
   const { error } = await supabase
     .from("categories")
-    .upsert(categories as never, { onConflict: "id" });
+    .upsert(categories, { onConflict: "id" });
 
   if (error) {
     console.error("❌ Kategori yükleme hatası:", error);
@@ -159,8 +121,8 @@ async function seedCategories(): Promise<boolean> {
 
 interface ParsedFileResult {
   filename: string;
-  products: ProductRow[];
-  models: ProductModelRow[];
+  products: ProductInsert[];
+  models: ProductModelInsert[];
 }
 
 function parseProductFile(filename: string): ParsedFileResult | null {
@@ -170,8 +132,8 @@ function parseProductFile(filename: string): ParsedFileResult | null {
     return null;
   }
 
-  const products: ProductRow[] = [];
-  const models: ProductModelRow[] = [];
+  const products: ProductInsert[] = [];
+  const models: ProductModelInsert[] = [];
 
   for (const product of fileData.products) {
     products.push({
@@ -213,9 +175,8 @@ const PRODUCT_FILES = [
 // çok büyük JSON dosyalarında bellek/timeout riskini azaltmak için parça parça gönderiyoruz.
 const BATCH_SIZE = 500;
 
-async function upsertInBatches<T extends { id: number }>(
-  table: "products" | "product_models",
-  rows: T[],
+async function upsertProductsInBatches(
+  rows: ProductInsert[],
 ): Promise<{ success: number; failed: number }> {
   let success = 0;
   let failed = 0;
@@ -223,12 +184,38 @@ async function upsertInBatches<T extends { id: number }>(
   for (let i = 0; i < rows.length; i += BATCH_SIZE) {
     const batch = rows.slice(i, i + BATCH_SIZE);
     const { error } = await supabase
-      .from(table)
-      .upsert(batch as never, { onConflict: "id" });
+      .from("products")
+      .upsert(batch, { onConflict: "id" });
 
     if (error) {
       console.error(
-        `  ❌ ${table} batch yükleme hatası (satır ${i}-${i + batch.length}):`,
+        `  ❌ products batch yükleme hatası (satır ${i}-${i + batch.length}):`,
+        error,
+      );
+      failed += batch.length;
+    } else {
+      success += batch.length;
+    }
+  }
+
+  return { success, failed };
+}
+
+async function upsertModelsInBatches(
+  rows: ProductModelInsert[],
+): Promise<{ success: number; failed: number }> {
+  let success = 0;
+  let failed = 0;
+
+  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+    const batch = rows.slice(i, i + BATCH_SIZE);
+    const { error } = await supabase
+      .from("product_models")
+      .upsert(batch, { onConflict: "id" });
+
+    if (error) {
+      console.error(
+        `  ❌ product_models batch yükleme hatası (satır ${i}-${i + batch.length}):`,
         error,
       );
       failed += batch.length;
@@ -257,13 +244,13 @@ async function seedProducts(): Promise<boolean> {
   );
 
   // Önce tüm ürünler (FK bütünlüğü için modellerden önce olmalı)
-  const productResult = await upsertInBatches("products", allProducts);
+  const productResult = await upsertProductsInBatches(allProducts);
   console.log(
     `  ✅ Ürünler: ${productResult.success} başarılı, ${productResult.failed} başarısız`,
   );
 
   // Sonra modeller
-  const modelResult = await upsertInBatches("product_models", allModels);
+  const modelResult = await upsertModelsInBatches(allModels);
   console.log(
     `  ✅ Modeller: ${modelResult.success} başarılı, ${modelResult.failed} başarısız`,
   );

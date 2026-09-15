@@ -4,6 +4,12 @@ import { supabaseAdmin } from "@/lib/supabase-admin"; // Admin client kullan (RL
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { verifySessionToken } from "@/lib/admin-session";
+import type {
+  CategoryInsert,
+  CategoryUpdate,
+  ProductInsert,
+  ProductUpdate,
+} from "@/types/database";
 
 /**
  * Admin oturum kontrolü - Tüm admin işlemlerinden önce çağrılmalı
@@ -22,7 +28,7 @@ async function checkAdminSession() {
  * Yeni ürün ekleme fonksiyonu
  * @param productData - Eklenecek ürün verileri
  */
-export async function addProduct(productData: any) {
+export async function addProduct(productData: ProductInsert) {
   await checkAdminSession(); // Güvenlik: Admin oturum kontrolü
 
   try {
@@ -53,7 +59,10 @@ export async function addProduct(productData: any) {
  * @param productId - Güncellenecek ürünün ID'si
  * @param productData - Güncellenecek ürün verileri
  */
-export async function updateProduct(productId: string, productData: any) {
+export async function updateProduct(
+  productId: number,
+  productData: ProductUpdate,
+) {
   await checkAdminSession(); // Güvenlik: Admin oturum kontrolü
 
   try {
@@ -89,7 +98,7 @@ export async function updateProduct(productId: string, productData: any) {
  * Ürün silme fonksiyonu
  * @param productId - Silinecek ürünün ID'si
  */
-export async function deleteProduct(productId: string) {
+export async function deleteProduct(productId: number) {
   await checkAdminSession(); // Güvenlik: Admin oturum kontrolü
 
   try {
@@ -123,10 +132,7 @@ export async function deleteProduct(productId: string) {
  * Yeni kategori ekleme fonksiyonu
  * @param categoryData - Eklenecek kategori verileri (name, prefix)
  */
-export async function addCategory(categoryData: {
-  name: string;
-  prefix: string;
-}) {
+export async function addCategory(categoryData: CategoryInsert) {
   await checkAdminSession(); // Güvenlik: Admin oturum kontrolü
 
   try {
@@ -159,7 +165,7 @@ export async function addCategory(categoryData: {
  */
 export async function updateCategory(
   categoryId: number,
-  categoryData: { name: string; prefix: string },
+  categoryData: CategoryUpdate,
 ) {
   await checkAdminSession(); // Güvenlik: Admin oturum kontrolü
 
@@ -230,41 +236,10 @@ export async function deleteCategory(categoryId: number) {
       };
     }
 
-    // ADIM 2.5: product_models tablosunda kontrol
-    console.log("📊 ADIM 2.5: product_models tablosunda kontrol...");
-    const { data: modelsInCategory, error: modelsCheckError } =
-      await supabaseAdmin
-        .from("product_models")
-        .select("id")
-        .eq("category_id", categoryId)
-        .limit(1);
-
-    console.log("📊 Model kontrolü sonucu:", {
-      modelsFound: modelsInCategory?.length || 0,
-      modelsData: modelsInCategory,
-      modelsCheckError: modelsCheckError
-        ? JSON.stringify(modelsCheckError)
-        : null,
-    });
-
-    if (modelsCheckError) {
-      console.error(
-        "❌ Model kontrolü hatası:",
-        JSON.stringify(modelsCheckError),
-      );
-      // Model tablosu yoksa veya hata varsa devam et (isteğe bağlı tablo olabilir)
-    }
-
-    if (modelsInCategory && modelsInCategory.length > 0) {
-      console.log(
-        "⚠️ Kategoriye ait model bulundu, silme işlemi iptal ediliyor",
-      );
-      return {
-        success: false,
-        error:
-          "Bu kategoriye ait modeller bulunuyor. Kategoriyi silebilmek için önce içindeki modelleri silmeli veya başka kategoriye taşımalısınız.",
-      };
-    }
+    // ADIM 2.5: product_models tabloları dolaylı olarak products üzerinden
+    // kategoriye bağlıdır (product_models.product_id → products.id). Yukarıdaki
+    // ürün kontrolü ürün varsa zaten engeller; product_models satırları products
+    // kaydı olmadan var olamayacağı için ayrıca kontrol gerekmez.
 
     // ADIM 3: Güvenli silme işlemi
     console.log("🗑️ ADIM 3: Kategori silme işlemi başlıyor...");

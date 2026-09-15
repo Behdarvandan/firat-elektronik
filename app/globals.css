@@ -63,6 +63,20 @@ html {
   animation: fade-slide-down 0.18s ease-out;
 }
 
+/* Sepet çekmecesi: sağdan içeri kayma animasyonu */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.25s ease-out;
+}
+
 /* Custom scrollbar - Fırat Elektronik teması */
 ::-webkit-scrollbar {
   width: 10px;

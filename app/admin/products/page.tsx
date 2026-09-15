@@ -1,10 +1,13 @@
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import type { AdminProductRow } from "@/types/catalog";
 
 export const dynamic = "force-dynamic";
 
 // Products verisini çek (server-side pagination)
-async function getProducts(page: number = 1) {
+async function getProducts(
+  page: number = 1,
+): Promise<{ products: AdminProductRow[]; totalCount: number }> {
   const pageSize = 20;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -93,9 +96,9 @@ export default async function ProductsPage({
       </div>
 
       {/* 📱 Data Table - Mobil Overflow Koruması */}
-      <div className="w-full overflow-x-auto -mx-4 sm:mx-0 rounded-lg border border-slate-800">
-        <div className="bg-slate-900 min-w-max sm:min-w-0">
-          <table className="w-full">
+      <div className="w-full overflow-x-auto rounded-lg border border-slate-800">
+        <div className="bg-slate-900">
+          <table className="w-full min-w-[720px]">
             <thead className="bg-slate-800 border-b border-slate-700">
               <tr>
                 <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider whitespace-nowrap">
@@ -126,7 +129,7 @@ export default async function ProductsPage({
                   </td>
                 </tr>
               ) : (
-                products.map((product: any) => (
+                products.map((product) => (
                   <tr
                     key={product.id}
                     className="hover:bg-slate-800/50 transition-colors"
